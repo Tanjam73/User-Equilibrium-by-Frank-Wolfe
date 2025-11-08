@@ -1,4 +1,4 @@
-# 🚦 Sioux Falls User Equilibrium Solver (Julia)
+# Sioux Falls User Equilibrium Solver (Julia)
 
 Implemented a full User Equilibrium traffic assignment for the Sioux Falls network using the **Frank–Wolfe algorithm** with a **Dijkstra-based All-or-Nothing (AON)** shortest path assignment.
 
@@ -12,6 +12,41 @@ Implemented a full User Equilibrium traffic assignment for the Sioux Falls netwo
 
 ---
 
+##  Key Differences and Design Choices
+
+- **Used `Dict`-based network representation** instead of adjacency matrices  
+  → Offers dynamic access to outgoing links and easier data handling for large or sparse networks.
+
+- **Introduced `build_edge_index` mapping**  
+  → Maintains a consistent edge ordering, simplifying vectorized flow updates and cost computations.
+
+- **Implemented Dijkstra’s algorithm with a `PriorityQueue` (from DataStructures.jl)**  
+  → Improves efficiency and scalability compared to the sequential node relaxation approach.
+
+- **Structured All-or-Nothing assignment (`aon_assign`) separately**  
+  → Keeps Dijkstra modular and reusable; flows are assigned directly via the precomputed shortest paths.
+
+- **Adopted a functional Frank–Wolfe framework**  
+  → Uses explicit flow extraction, cost update, and convergence tracking functions for better clarity and debugging.
+
+- **Refined line search using robust bisection on the derivative function**  
+  → Provides numerically stable and precise step-size computation across all flow levels.
+
+- **Added AON initialization**  
+  → Reduces total iterations by starting the solver closer to equilibrium.
+
+- **Normalized relative gap criterion**  
+  → Uses the Frank–Wolfe gap (`dot(x - y, c) / dot(x, c)`) instead of simple flow difference, improving convergence accuracy.
+
+- **Separated each module (Network, Dijkstra/AON, Frank–Wolfe, Run)**  
+  → Encourages modular testing, maintainability, and future extensions 
+
+- **Improved convergence visualization**  
+  → Exports convergence data and generates a clean plot to assess algorithm performance.
+
+---
+
+These refinements keep the mathematical core identical to Sir’s method but make the implementation more modular and scalable — easier to extend and benchmark for other networks.
 
 
 
